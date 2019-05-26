@@ -1,0 +1,21 @@
+[{
+  "name": "Tübingen",
+  "latitude": 48.52,
+  "longitude": 9.05556
+},
+  {
+    "name": "Kirchheim unter Teck",
+    "latitude": 48.6480545,
+    "longitude": 9.4510227
+  },
+  {
+    "name": "Stuttgart",
+    "latitude": 48.7784485,
+    "longitude": 9.1800132
+  },
+  {
+    "name": "Balingen",
+    "latitude": 48.2737512,
+    "longitude": 8.8557862
+  }
+]

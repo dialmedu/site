@@ -2,11 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import { getMonth, setMonth, addMonths, addDays, getDate } from 'date-fns'
+import haversine from 'haversine'
 
 Vue.use(Vuex)
 
 const ENDPOINT = (process.env.VUE_APP_ENDPOINT !== undefined) ? process.env.VUE_APP_ENDPOINT : 'http://localhost:8080/v1'
 const FIXTURE_EVENTS = require('@/assets/events.json')
+const CITIES = require('@/assets/cities.json')
 
 export default new Vuex.Store({
   state: {
@@ -40,12 +42,25 @@ export default new Vuex.Store({
         })
         return Promise.resolve(context.commit('addEvents', updatedFixtures))
       } else {
-        return fetch(`${ENDPOINT}/events`, {
-          headers: {
-            Latitude: context.state.location.latitude,
-            Longitude: context.state.location.longitude
-          }
-        })
+        return fetch('https://ipapi.co/json')
+          .then((response) => response.json())
+          .then((ipinfo) => Promise.resolve(CITIES.sort((a, b) => {
+            let aDistance = haversine([a['latitude'], a['longitude']], [ipinfo['latitude'], ipinfo['longitude']])
+            let bDistance = haversine([b['latitude'], b['longitude']], [ipinfo['latitude'], ipinfo['longitude']])
+            if (aDistance < bDistance) {
+              return -1
+            } else if (aDistance > bDistance) {
+              return 1
+            } else {
+              return 0
+            }
+          })[0]))
+          .then(() => fetch(`${ENDPOINT}/events`, {
+            headers: {
+              Latitude: context.state.location.latitude,
+              Longitude: context.state.location.longitude
+            }
+          }))
           .then((response) => response.json())
           .then((events) => context.commit('addEvents', events))
           .catch((err) => {
